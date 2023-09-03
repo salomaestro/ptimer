@@ -1,5 +1,4 @@
 from time import perf_counter
-from typing import Callable
 
 
 class Timer:
@@ -38,15 +37,15 @@ class Timer:
     Time taken: test 0.0 seconds
     """
 
-    def __init__(self, name:str=None, **kwargs):
+    def __init__(self, name: str = None, **kwargs):
         """Timer context manager.
-        
+
         Supply a name to a section of code to be timed within a file and this class will time it
         using python-time's perf_counter.
 
         Args:
             name (str, optional): Name of the section of code to be timed. Defaults to None.
-        
+
         Keyword Args:
             explainer (str, optional): Explainer text to be printed before the name and time. Defaults to "Elapsed time for ".
             time_fmt (str | Callable, optional): Format of the time to be printed. Defaults to "time_fmt_ms".
@@ -56,6 +55,7 @@ class Timer:
         """
 
         self.name = name
+        self.elapsed = None
 
         self._expl = f"Elapsed time for {self.name}: "
         self._fmts = {
@@ -71,7 +71,8 @@ class Timer:
             if self.time_fmt in self._fmts:
                 self.time_fmt = self._fmts[self.time_fmt]
             else:
-                raise AttributeError(f"Attribute {self.time_fmt} not found. Pass in either an callable or str")
+                raise AttributeError(
+                    f"Attribute {self.time_fmt} not found. Pass in either an callable or str")
 
     def __enter__(self):
         self.start = perf_counter()
@@ -79,13 +80,13 @@ class Timer:
 
     def __exit__(self, *args):
         self.end = perf_counter()
-        self.interval = self.end - self.start
+        self.elapsed = self.end - self.start
 
         if self.name is None:
-            print(f"Elapsed time: {self.time_fmt(self.interval)}")
+            print(f"Elapsed time: {self.time_fmt(self.elapsed)}")
             return
 
-        print(f"{self.explainer}{self.time_fmt(self.interval)}")
+        print(f"{self.explainer}{self.time_fmt(self.elapsed)}")
 
     @staticmethod
     def time_fmt_s(time):
@@ -101,9 +102,8 @@ class Timer:
         seconds = time % 60
         return f"{int(minutes)}m{seconds:.3}s"
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     with Timer("my test", time_fmt="time_fmt_m"):
         for i in range(1000000):
             i = i + 1
-    
